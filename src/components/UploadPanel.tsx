@@ -39,16 +39,16 @@ export default function UploadPanel({ fileName, isProcessing, onFileSelected, on
             所有處理均在瀏覽器本機完成，檔案不會上傳至任何伺服器。
           </p>
         </div>
-        <button
-          type="button"
-          onClick={onDownloadSample}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+        <a
+        href="/sample.xlsx"
+        download="sample.xlsx"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
         >
           <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v12m0 0 4-4m-4 4-4-4M4 19h16" />
           </svg>
           Download Sample Template 下載範本
-        </button>
+        </a>
       </div>
 
       <div

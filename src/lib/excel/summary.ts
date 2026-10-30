@@ -331,18 +331,18 @@ function writePriceTable(
     styleData(ws.getCell(r, 1));
 
     const minCell = ws.getCell(r, 2);
-    minCell.value = { formula: `IFERROR(MINIFS(${ROT_L},${ROT_K},${room},${ROT_M},"${tenderCriteria}"),"N/A")` } as ExcelJS.CellFormulaValue;
+    minCell.value = { formula: `IFERROR(_xlfn.MINIFS(${ROT_L},${ROT_K},${room},${ROT_M},"${tenderCriteria}"),"N/A")` } as ExcelJS.CellFormulaValue;
     minCell.numFmt = "0.00";
     styleData(minCell, "right");
 
     const maxCell = ws.getCell(r, 3);
-    maxCell.value = { formula: `IFERROR(MAXIFS(${ROT_L},${ROT_K},${room},${ROT_M},"${tenderCriteria}"),"N/A")` } as ExcelJS.CellFormulaValue;
+    maxCell.value = { formula: `IFERROR(_xlfn.MAXIFS(${ROT_L},${ROT_K},${room},${ROT_M},"${tenderCriteria}"),"N/A")` } as ExcelJS.CellFormulaValue;
     maxCell.numFmt = "0.00";
     styleData(maxCell, "right");
 
     const avgCell = ws.getCell(r, 4);
     avgCell.value = {
-      formula: `IFERROR(AVERAGEIFS(${ROT_L},${ROT_K},${room},${ROT_M},"${tenderCriteria}"),"N/A")`,
+      formula: `IFERROR(_xlfn.AVERAGEIFS(${ROT_L},${ROT_K},${room},${ROT_M},"${tenderCriteria}"),"N/A")`,
     } as ExcelJS.CellFormulaValue;
     avgCell.numFmt = "0.00";
     styleData(avgCell, "right");

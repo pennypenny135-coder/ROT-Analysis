@@ -38,17 +38,29 @@ function uniqueSorted<T extends string | number>(values: T[]): T[] {
     return String(a).localeCompare(String(b), undefined, { numeric: true });
   });
 }
-function addRotHelperColumn(rotWs: ExcelJS.Worksheet, rotLastRow: number) {
-  const header = rotWs.getRow(1).getCell(13);
-  header.value = "SA No. (Join Helper)";
-  header.font = { bold: true, italic: true, color: { argb: XLSX_COLORS.helperFont } };
-  header.fill = { type: "pattern", pattern: "solid", fgColor: { argb: XLSX_COLORS.helperFill } };
-  header.border = BORDER;
+function addRotHelperColumns(rotWs: ExcelJS.Worksheet, rotLastRow: number) {
+  const saHeader = rotWs.getRow(1).getCell(13);
+  saHeader.value = "SA No. (Join Helper)";
+  saHeader.font = { bold: true, italic: true, color: { argb: XLSX_COLORS.helperFont } };
+  saHeader.fill = { type: "pattern", pattern: "solid", fgColor: { argb: XLSX_COLORS.helperFill } };
+  saHeader.border = BORDER;
   rotWs.getColumn(13).width = 22;
+
+  const plHeader = rotWs.getRow(1).getCell(14);
+  plHeader.value = "PL No.";
+  plHeader.font = { bold: true, italic: true, color: { argb: XLSX_COLORS.helperFont } };
+  plHeader.fill = { type: "pattern", pattern: "solid", fgColor: { argb: XLSX_COLORS.helperFill } };
+  plHeader.border = BORDER;
+  rotWs.getColumn(14).width = 18;
+
   for (let r = 2; r <= rotLastRow; r++) {
-    const cell = rotWs.getRow(r).getCell(13);
-    cell.value = { formula: `IFERROR(SUBSTITUTE(UPPER(VLOOKUP($G${r},SA!$A:$B,2,FALSE))," ",""),"")` } as ExcelJS.CellFormulaValue;
-    cell.font = { italic: true, color: { argb: XLSX_COLORS.helperFont } };
+    const saCell = rotWs.getRow(r).getCell(13);
+    saCell.value = { formula: `IFERROR(SUBSTITUTE(UPPER(VLOOKUP($G${r},SA!$A:$B,2,FALSE))," ",""),"")` } as ExcelJS.CellFormulaValue;
+    saCell.font = { italic: true, color: { argb: XLSX_COLORS.helperFont } };
+
+    const plCell = rotWs.getRow(r).getCell(14);
+    plCell.value = { formula: `IFERROR(VLOOKUP($G${r},PL!$D:$K,8,FALSE),"")` } as ExcelJS.CellFormulaValue;
+    plCell.font = { italic: true, color: { argb: XLSX_COLORS.helperFont } };
   }
 }
 function priceFormula(cell: ExcelJS.Cell, formula: string, total = false) {
@@ -76,7 +88,7 @@ export function buildSummarySheet(workbook: ExcelJS.Workbook, plRows: PLRow[], s
   const plLast = Math.max(2, plWs.rowCount);
   const saLast = Math.max(2, saWs.rowCount);
   const rotLast = Math.max(2, rotWs.rowCount);
-  addRotHelperColumn(rotWs, rotLast);
+  addRotHelperColumns(rotWs, rotLast);
   const existing = workbook.getWorksheet("Summary");
   if (existing) workbook.removeWorksheet(existing.id);
   const ws = workbook.addWorksheet("Summary", { properties: { defaultColWidth: 20 } });
@@ -92,6 +104,7 @@ export function buildSummarySheet(workbook: ExcelJS.Workbook, plRows: PLRow[], s
   const ROT_K = `ROT!$K$2:$K$${rotLast}`;
   const ROT_L = `ROT!$L$2:$L$${rotLast}`;
   const ROT_M = `ROT!$M$2:$M$${rotLast}`;
+  const ROT_N = `ROT!$N$2:$N$${rotLast}`;
   const rotAvgHeader = "Avg. ROT 呎價 (per sq.ft.)";
   let r = 1;
   const plNos = uniqueSorted(plRows.map(p => p.plNo).filter((v): v is string | number => v !== null));
@@ -100,8 +113,8 @@ export function buildSummarySheet(workbook: ExcelJS.Workbook, plRows: PLRow[], s
     ws.getCell(r, 1).value = plNo;
     styleData(ws.getCell(r, 1));
     priceFormula(ws.getCell(r, 2), `IFERROR(AVERAGEIF(${PL_K},A${r},${PL_I}),"N/A")`);
-    // ROT M is normalized text, matching the SA label rather than ROT room count.
-    priceFormula(ws.getCell(r, 3), `IFERROR(AVERAGEIF(${ROT_M},UPPER(SUBSTITUTE(A${r}&""," ","")),${ROT_L}),"N/A")`);
+    // ROT N contains the PL No. lookup result; Tender rows remain blank.
+    priceFormula(ws.getCell(r, 3), `IFERROR(AVERAGEIF(${ROT_N},UPPER(SUBSTITUTE(A${r}&""," ","")),${ROT_L}),"N/A")`);
     r++;
   }
   if (plNos.length === 0) { ws.getCell(r, 1).value = "No PL data"; styleData(ws.getCell(r++, 1), "left"); }
